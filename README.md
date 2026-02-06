@@ -346,20 +346,87 @@ In the application:
 - Routing props could be used for more dynamic navigation
 
 
+ Comprehensive React Interview Guide
+This guide covers everything we implemented in your Task Management project, organized by topic to help you ace your interview tomorrow.
 
-# React + Vite
+1. Core Concepts & Lifecycle
+The "How and Why" of React.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Concepts
+Virtual DOM: A lightweight copy of the real DOM. React uses it to calculate the minimum changes needed (Reconciliation) before updating the real browser DOM.
+JSX: JavaScript XML. It allows us to write HTML-like code inside JavaScript. Vite compiles this into regular React.createElement() calls.
+Components: Reusable UI building blocks. We used Functional Components for everything.
+The Lifecycle (Functional)
+In functional components, we use useEffect to handle the lifecycle:
 
-Currently, two official plugins are available:
+Mounting (Page Load): useEffect(() => { ... }, []) - Runs once. (e.g., Fetching projects).
+Updating (Data Change): useEffect(() => { ... }, [data]) - Runs when data changes.
+Unmounting (Closing Page): useEffect(() => { return () => { ... } }, []) - The cleanup function.
+2. Hooks Deep-Dive
+The "Brain" of our application.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Hook	Purpose	Project Example
+useState	Local UI state.	Handling the task filter dropdown.
+useEffect	Side effects (APIs).	Fetching tasks when a project is opened.
+useRef	Direct DOM access / Persistent values.	Grabbing Login input values (Uncontrolled).
+useReducer	Complex state logic.	Managing Auth states (Login/Logout/Error).
+useContext	Global data sharing.	Providing the User/Token to all pages.
+useMemo	Value memoization.	Filtering the task list without re-calculating on every scroll.
+useCallback	Function memoization.	Stabilizing the fetchData function to prevent infinite loops.
+3. Performance & Optimization
+How to make the app "Senior Level" fast.
 
-## React Compiler
+Lazy Loading (React.lazy + Suspense): Splitting the app into chunks. We used this in 
+App.jsx
+ to only load the "Login" page or "Dashboard" when the user visits them.
+React.memo: A High Order Component. We wrapped 
+TaskItem
+ in it so it only re-renders if its specific task data changes.
+Infinite Scrolling: Instead of loading 1000 projects, we load 10 and use the Intersection Observer API to load more as the user reaches the bottom.
+Virtualization: The concept of only rendering what's on screen. In our project, Infinite Scroll is a form of "Lazy Rendering".
+4. State Management
+How data moves between files.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Props: Data moving Down (Parent to Child). (e.g., Passing project to 
+ProjectCard
+).
+Lifting State Up: Callback functions moving Up (Child to Parent). (e.g., 
+TaskItem
+ telling 
+ProjectDetails
+ to refresh).
+Context API: Data moving Everywhere. Used for Authentication so we don't have to "prop drill" the user token to every single component.
+5. Security & Auth Flow
+Protecting user data.
 
-## Expanding the ESLint configuration
+Bearer Token: We store the JWT in localStorage and send it in the Authorization header of every Axios request.
+Protected Routes: In 
+App.jsx
+, we created a <ProtectedRoute> component. If a user isn't logged in, it redirects them to /login automatically.
+Interceptors: In 
+api.js
+, we used Axios Interceptors to automatically attach the token to every request, so we don't have to do it manually in every file.
+6. Event Handling
+Synthetic Events: React's cross-browser wrapper around browser events (e.g., onClick, onChange).
+Controlled vs. Uncontrolled:
+Controlled: React state handles the input (Standard).
+Uncontrolled: We use useRef to pull value only when needed (What we did for Login for "Performance Demo").
+🎯 Mock Interview Questions
+Q: Why choose Vite over Create-React-App?
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+"Vite uses native ES modules and is significantly faster during development because it doesn't bundle the whole app every time you save a file."
+
+Q: How do you handle a large list of 5000 items in React?
+
+"I would use Virtualization (like react-window) or Infinite Scrolling with an Intersection Observer so the browser only handles a small number of DOM elements at once."
+
+Q: What is a High Order Component (HOC)?
+
+"A function that takes a component and returns a new one. React.memo is a perfect example of an HOC that adds performance optimization."
+
+Q: Explain the dependency array in useEffect.
+
+"It controls when the effect runs. Empty [] means once on mount. Variable [id] means whenever 
+id
+ changes. No array means on every single render."
+
